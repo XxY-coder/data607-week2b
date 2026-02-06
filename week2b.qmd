@@ -1,0 +1,16 @@
+---
+title: "week2b"
+author: "Zihao Yu"
+format: html
+editor: visual
+---
+
+# 1.How will I tackle the problem?
+
+I will import the data, verify the values in the .pred_female, .pred_class, and sex columns, then plot the distribution using sex and calculate the NER. Based on the Machine Learning PDF, calculate TP/FP/TN/FN; compute Accuracy, Precision, Recall, and F1, summarize these into a comparison table, and explain different scenarios suited for 0.2 or 0.8.
+
+# 2.What data challenges do I anticipate?
+
+The first time may require more time. And the assignment involves multiple iterations of calculations with numerous steps, making data processing prone to errors. To minimize mistakes, take extra care when transcribing data and perform double-checks after each computation.
+
+source: "https://raw.githubusercontent.com/XxY-coder/data607-week2b/refs/heads/main/penguin_predictions.csv"
