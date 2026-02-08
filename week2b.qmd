@@ -14,3 +14,141 @@ I will import the data, verify the values in the .pred_female, .pred_class, and 
 The first time may require more time. And the assignment involves multiple iterations of calculations with numerous steps, making data processing prone to errors. To minimize mistakes, take extra care when transcribing data and perform double-checks after each computation.
 
 source: "https://raw.githubusercontent.com/XxY-coder/data607-week2b/refs/heads/main/penguin_predictions.csv"
+
+# 3. Explore the Data
+
+```{r}
+library(tidyverse)
+
+df <- read.csv("https://raw.githubusercontent.com/XxY-coder/data607-week2b/refs/heads/main/penguin_predictions.csv")
+
+glimpse(df)
+names(df)
+sum(is.na(df))
+
+df |>
+  ggplot(
+    aes(x = sex)
+  )+
+  geom_bar()+
+  labs(
+    title = " Count of sex",
+    x = "sex",
+    y = "count"
+  )
+
+df |>
+  count(sex, sort = TRUE)
+```
+
+# 4.Deal with the NER
+
+Data contain 39 Female, and 54 Male. The formula is Number of Minority class samples/ Total numbers.
+
+```{r}
+error_rate <- 39/(39 +54)
+error_rate
+```
+
+# 5. Understand Probability vs Class
+
+```{r}
+df2 <-
+  df |>
+  mutate(
+    pred_02 = ifelse(.pred_female > 0.2, 1, 0),
+    pred_05 = ifelse(.pred_female > 0.5, 1, 0),
+    pred_08 = ifelse(.pred_female > 0.8, 1, 0)
+  )
+
+glimpse(df2)
+```
+
+# 6. Work with probability thresholds of 0.2.
+
+```{r}
+cm_02 <- 
+  df2 |>
+  summarise(
+    TP = sum(pred_02 == 1 & sex == "female", na.rm = TRUE),
+    FP = sum(pred_02 == 1 & sex == "male",   na.rm = TRUE),
+    TN = sum(pred_02 == 0   & sex == "male",   na.rm = TRUE),
+    FN = sum(pred_02 == 0   & sex == "female", na.rm = TRUE)
+  )
+cm_02
+```
+
+```{r}
+accuracy_02 <- (37+48)/93
+accuracy_02
+Prec_02 <- (37)/(37+6)
+Prec_02
+recall_02 <- (37)/(37+2)
+recall_02
+F1_02 <- (2*(Prec_02)*(recall_02))/((Prec_02)+(recall_02))
+F1_02
+```
+
+# 7. Work with probability thresholds of 0.5.
+
+```{r}
+cm_05 <- 
+  df2 |>
+  summarise(
+    TP = sum(pred_05 == 1 & sex == "female", na.rm = TRUE),
+    FP = sum(pred_05 == 1 & sex == "male",   na.rm = TRUE),
+    TN = sum(pred_05 == 0   & sex == "male",   na.rm = TRUE),
+    FN = sum(pred_05 == 0   & sex == "female", na.rm = TRUE)
+  )
+cm_05
+```
+
+```{r}
+accuracy_05 <- (36+51)/93
+accuracy_05
+Prec_05 <- (36)/(36+3)
+Prec_05
+recall_05 <- (36)/(36+3)
+recall_05
+F1_05 <- (2*(Prec_05)*(recall_05))/((Prec_05)+(recall_05))
+F1_05
+```
+
+# 8. Work with probability thresholds of 0.8.
+
+```{r}
+cm_08 <- 
+  df2 |>
+  summarise(
+    TP = sum(pred_08 == 1 & sex == "female", na.rm = TRUE),
+    FP = sum(pred_08 == 1 & sex == "male",   na.rm = TRUE),
+    TN = sum(pred_08 == 0   & sex == "male",   na.rm = TRUE),
+    FN = sum(pred_08 == 0   & sex == "female", na.rm = TRUE)
+  )
+cm_08
+```
+
+```{r}
+accuracy_08 <- (36+52)/93
+accuracy_08
+Prec_08 <- (36)/(36+2)
+Prec_08
+recall_08 <- (36)/(36+3)
+recall_08
+F1_08 <- (2*(Prec_08)*(recall_08))/((Prec_08)+(recall_08))
+F1_08
+```
+
+# Explain why knowing the null error rate is important when evaluating models.
+
+NER helps us check for data class imbalance. When data is skewed toward the majority class, accuracy may appear inflated, while the minority class is more easily misclassified or missed.
+
+# Conclusion
+
+By calculating thresholds of 0.2, 0.5, and 0.8:
+
+---Threshold 0.5 yields stable performance across metrics, suitable for most datasets but not necessarily the optimal choice. The decision depends on whether higher precision or recall is prioritized.
+
+---At threshold 0.2, recall is higher but precision is lower. While accuracy remains high, it becomes less significant due to sample imbalance and is generally considered. Threshold 0.2 is more suitable for medical screening to identify correct cases and reduce misdiagnosis; however, precision should not be too low to ensure results remain accurate.
+
+---At 0.8, both precision and accuracy reach 0.95. Recall is slightly lower than at 0.2, while F1 is 0.4 higher. Overall, the model with threshold 0.8 performs stronger. Its superior metrics make it more suitable for tasks requiring correct classification, such as estimating gender ratios in a college, where it minimizes misclassifications and yields more stable statistical results.
